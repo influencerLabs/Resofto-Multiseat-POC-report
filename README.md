@@ -1,29 +1,25 @@
-# Resofto Aster Multiseat POC Manager
+# Resofto Multi-Seat Solution
 
-A simple Next.js application based on the Resofto Aster Multiseat POC Excel workbook.
+POC Management & Validation Platform built with Next.js, Supabase and Vercel.
 
-## Architecture
-- Frontend: Next.js + React
-- Database: Excel `.xlsx` workbook
-- Persistent storage: Vercel Blob
-- Excel processing: SheetJS (`xlsx`)
-- Hosting: Vercel
+## Environment variables
 
-The deployed Vercel filesystem is ephemeral, so the application stores the Excel database in Vercel Blob. The workbook remains the source of truth and can be downloaded at any time.
+Set these in Vercel:
 
-## Deploy to Vercel
-1. Create a GitHub repository and upload this project.
-2. In Vercel, import the GitHub repository.
-3. In Vercel Storage, create a Blob store and connect it to this project.
-4. Confirm the `BLOB_READ_WRITE_TOKEN` environment variable is available to the deployment.
-5. Deploy.
-6. Open the app. The first visit initializes the Excel database from `public/seed.xlsx` into Vercel Blob.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+## Database
+
+Create the nine Supabase tables described in the deployment guide and configure RLS policies before production use.
 
 ## Local development
+
 ```bash
 npm install
 npm run dev
 ```
 
-## Important
-This is intentionally a lightweight internal POC application. Excel is not a multi-user transactional database. For multiple simultaneous users, audit history, authentication, role-based access and high-volume records, move the storage layer to PostgreSQL/Supabase while retaining Excel export.
+## Deployment
+
+Push to GitHub and connect the repository to Vercel.
