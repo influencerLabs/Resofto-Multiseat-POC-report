@@ -7,12 +7,28 @@ import path from 'node:path';
 export const runtime = 'nodejs';
 
 async function readDb() {
-  const blob = await getDatabaseBlob();
-  if (blob) {
-    const r = await fetch(blob.downloadUrl);
-    if (!r.ok) throw new Error('Could not read Excel database from Blob.');
-    return workbookToData(Buffer.from(await r.arrayBuffer()));
+  const result = await getDatabaseBlob();
+
+  if (result) {
+    const chunks = [];
+
+    for await (const chunk of result.stream) {
+      chunks.push(chunk);
+    }
+
+    return workbookToData(Buffer.concat(chunks));
   }
+
+  const seed = await fs.readFile(
+    path.join(process.cwd(), 'public', 'seed.xlsx')
+  );
+
+  const data = workbookToData(seed);
+
+  await saveDatabase(seed);
+
+  return data;
+}
   const seed = await fs.readFile(path.join(process.cwd(), 'public', 'seed.xlsx'));
   const data = workbookToData(seed);
   await saveDatabase(seed);
