@@ -29,23 +29,56 @@ async function readDb() {
 
   return data;
 }
-  const seed = await fs.readFile(path.join(process.cwd(), 'public', 'seed.xlsx'));
-  const data = workbookToData(seed);
-  await saveDatabase(seed);
-  return data;
-}
 
 export async function GET() {
-  try { return NextResponse.json({ ok: true, data: await readDb() }); }
-  catch (e) { return NextResponse.json({ ok:false, error:e.message }, { status:500 }); }
+  try {
+    const data = await readDb();
+
+    return NextResponse.json({
+      ok: true,
+      data,
+    });
+  } catch (e) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: e.message,
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    if (!body?.data || typeof body.data !== 'object') return NextResponse.json({ok:false,error:'Invalid workbook data.'},{status:400});
+
+    if (!body?.data || typeof body.data !== 'object') {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Invalid workbook data.',
+        },
+        { status: 400 }
+      );
+    }
+
     const buffer = dataToWorkbook(body.data);
+
     const blob = await saveDatabase(buffer);
-    return NextResponse.json({ ok:true, url:blob.url, savedAt:new Date().toISOString() });
-  } catch(e) { return NextResponse.json({ok:false,error:e.message},{status:500}); }
+
+    return NextResponse.json({
+      ok: true,
+      url: blob.url,
+      savedAt: new Date().toISOString(),
+    });
+  } catch (e) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: e.message,
+      },
+      { status: 500 }
+    );
+  }
 }
